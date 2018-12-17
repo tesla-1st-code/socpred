@@ -24,39 +24,39 @@ export class Prediction {
 
         let scoreRanges = [0, 1, 2, 3, 4, 5, 6];
       
-        let homeProbs = [];
-        let awayProbs = [];
+        let homeScores = [];
+        let awayScores = [];
     
         for (let i=0; i < scoreRanges.length; i++) {
-            homeProbs.push({score: i, probability: StatisticHelper.calculatePoisson(i, homeProb)});
-            awayProbs.push({score: i, probability: StatisticHelper.calculatePoisson(i, awayProb)});
+            homeScores.push({score: i, probability: StatisticHelper.calculatePoisson(i, homeProb)});
+            awayScores.push({score: i, probability: StatisticHelper.calculatePoisson(i, awayProb)});
         }   
 
         let homeWins = 0;
         let awayWins = 0;
-        let draws = 0;
+        let draw = 0;
 
         for (let i=0; i<scoreRanges.length; i++) {
             for (let j=0; j<scoreRanges.length; j++) {
-                console.log(`${i}-${j} = ${Math.round((homeProbs[i].probability * awayProbs[j].probability)*100)}%`);
+                console.log(`${i}-${j} = ${Math.round((homeScores[i].probability * awayScores[j].probability)*100)}%`);
 
                 if (i > j) {
-                    homeWins += (homeProbs[i].probability * awayProbs[j].probability)*100;
+                    homeWins += (homeScores[i].probability * awayScores[j].probability)*100;
                 }
 
                 else if (i < j) {
-                    awayWins += (homeProbs[i].probability * awayProbs[j].probability)*100;
+                    awayWins += (homeScores[i].probability * awayScores[j].probability)*100;
                 }
 
                 else {
-                    draws += (homeProbs[i].probability * awayProbs[j].probability)*100;
+                    draw += (homeScores[i].probability * awayScores[j].probability)*100;
                 }
             }
         }
 
-        console.log(`Home = ${Math.round(homeWins)}%, Away =  ${Math.round(awayWins)}%, Draw =  ${Math.round(draws)}%`);
+        console.log(`Home = ${Math.round(homeWins)}%, Away =  ${Math.round(awayWins)}%, Draw =  ${Math.round(draw)}%`);
 
         
-        return {homeProbabilities: homeProbs, awayProbabilities: awayProbs};
+        return {hs: homeScores, as: awayScores, wld: {home: homeWins, away: awayWins, draw: draw}};
     }
 }
