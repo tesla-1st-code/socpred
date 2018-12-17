@@ -9,8 +9,6 @@ export interface FeatureAttribute {
     hcr: number;
     agr: number;
     acr: number;
-    hccr: number;
-    accr: number;
 }
 
 export interface FeatureEntity extends Instance<FeatureAttribute> {
@@ -23,9 +21,7 @@ export let Feature = DbContext.define<FeatureEntity, FeatureAttribute>('feature'
    hgr: { type: DECIMAL, allowNull: false },
    hcr: { type: DECIMAL, allowNull: false },
    agr: { type: DECIMAL, allowNull: false },
-   acr: { type: DECIMAL, allowNull: false },
-   hccr: { type: DECIMAL, allowNull: false },
-   accr: { type: DECIMAL, allowNull: false }
+   acr: { type: DECIMAL, allowNull: false }
 }, { timestamps: false, tableName: 'features', freezeTableName: true });
 
 Feature.belongsTo(Team, {as: 'team', foreignKey: 'teamId'});
