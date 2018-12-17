@@ -7,3 +7,5 @@ let run = async() => {
     await Team.sync({force: true});
     await Feature.sync({force: true});
 }
+
+run();
