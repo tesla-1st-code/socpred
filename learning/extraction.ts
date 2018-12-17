@@ -80,6 +80,10 @@ export class Extraction {
             }      
         }
     }
+
+    private async extractSchedules() {
+        
+    }
 }
 
 new Extraction().run();

@@ -8,13 +8,14 @@ import { DataHelper } from "../helpers/data";
 export class Prediction {
     constructor() {}
 
-    async run(home: string, away: string) {
-        let homeTeam = await Team.findOne({ where: { name: home }, include:[{model: League, as: 'league'}]});
-        let awayTeam = await Team.findOne({ where: { name: away }});
+    async predict() {
         
-        let homeFeature = await Feature.findOne({ where:{ teamId: homeTeam.getDataValue('id')}});
-        let awayFeature = await Feature.findOne({ where:{ teamId: awayTeam.getDataValue('id')}});
-        let data = DataHelper.getSeasonData(homeTeam.toJSON()['league']['prefix']);
+    }
+
+    private async run(homeId: number, awayId: number, prefix: string) {
+        let homeFeature = await Feature.findOne({ where:{ teamId: homeId}});
+        let awayFeature = await Feature.findOne({ where:{ teamId:awayId}});
+        let data = DataHelper.getSeasonData(prefix);
 
         let meanHomeGoal = mean(data.map(e => parseInt(e['FTHG'])));
         let meanAwayGoal = mean(data.map(e => parseInt(e['FTAG'])));
@@ -56,7 +57,6 @@ export class Prediction {
 
         console.log(`Home = ${Math.round(homeWins)}%, Away =  ${Math.round(awayWins)}%, Draw =  ${Math.round(draw)}%`);
 
-        
         return {hs: homeScores, as: awayScores, wld: {home: homeWins, away: awayWins, draw: draw}};
     }
 }
