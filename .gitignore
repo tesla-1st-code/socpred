@@ -12,3 +12,4 @@ learning/*.js
 learning/*.js.map
 helpers/*.js
 helpers/*.js.map
+.vscode/*.json
