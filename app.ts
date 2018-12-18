@@ -19,6 +19,8 @@ app.use(bodyParser.json({ limit: '50mb'}));
 app.use(bodyParser.urlencoded({ limit: '50mb' , extended: false }));
 
 routingControllers.useExpressServer(app, {
+    routePrefix: ENV['api_url'],
+    classTransformer: false,
     controllers: [__dirname + "/controllers/*.js"]
 });
 

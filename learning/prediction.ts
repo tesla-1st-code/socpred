@@ -1,7 +1,7 @@
 import { Team } from "../models/team";
 import { Feature } from "../models/feature";
 import { League } from "../models/league";
-import { mean } from 'lodash';
+import { mean, orderBy } from 'lodash';
 import { StatisticHelper } from "../helpers/statistic";
 import { DataHelper } from "../helpers/data";
 import { Result } from "../models/result";
@@ -9,10 +9,10 @@ import { Result } from "../models/result";
 export class Prediction {
     constructor() {}
 
-    async run(round: number) {
+    async run(round: number, leagueId: number) {
         let fixtures = await Result.findAll({
             where: { round: round },
-            include: [{model: Team, as: 'home', include: [{model: League, as: 'league'}]}]
+            include: [{model: Team, as: 'home', where: { leagueId: leagueId }, include: [{model: League, as: 'league'}]}]
         });
 
         for (let i=0; i<fixtures.length; i++) {
@@ -21,27 +21,31 @@ export class Prediction {
             let prediction = await this.getPrediction(fixture.homeId, fixture.awayId, league['prefix']);
 
             let scoreRanges = [0, 1, 2, 3, 4, 5, 6];
-            let max = Number.MIN_VALUE;
-            let predictedScore = '';
+            let scores = [];
 
             for (let j=0; j<scoreRanges.length; j++) {
                 for (let k=0; k<scoreRanges.length; k++) {
                    let homeR = prediction.hs[j].probability;
                    let awayR = prediction.as[k].probability;
 
-                   if ((homeR * awayR) > max) {
-                       max = homeR * awayR;
-                       predictedScore = j.toString() + '-' + k.toString();
-                   }
+                   scores.push({score: j.toString() + '-' + k.toString(), prob: homeR * awayR});
                 }
             }
 
+            let sorted = orderBy(scores, 'prob', ['desc']);
+            let top3Result = sorted.slice(0, 3);
+
             await Result.update({
-                actualProbability: max,
-                actualResult: predictedScore,
-                
-            })
-            console.log(prediction);
+                predResult: prediction.wld.home > prediction.wld.away ? 'H' : prediction.wld.home < prediction.wld.away ? 'A' : 'D',
+                predScore1: top3Result[0]['score'],
+                predScore2: top3Result[1]['score'],
+                predScore3: top3Result[2]['score'],
+                prob1: top3Result[0]['prob'],
+                prob2: top3Result[1]['prob'],
+                prob3: top3Result[2]['prob']
+            }, { where: { id: fixture.id }});
+
+            console.log(`${fixture.id} has been updated`);
         }
     }
 
@@ -94,4 +98,4 @@ export class Prediction {
     }
 }
 
-new Prediction().run(16);
+new Prediction().run(17, 2);

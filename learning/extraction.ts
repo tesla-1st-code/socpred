@@ -117,13 +117,26 @@ export class Extraction {
                     awayId: awayTeam.getDataValue('id')}
                 });
 
+                let scores = fixture['Result'].split('-');
+                let result = '';
+
+                if (scores.length > 1) {
+                    if (parseInt(scores[0]) > parseInt(scores[1]))
+                        result = 'H';
+                    else if (parseInt(scores[0]) < parseInt(scores[1]))   
+                        result = 'A';
+                    else 
+                        result = 'D';
+                }
+
                 if (!existingFixture) {
                     await Result.create({
                         homeId: homeTeam.getDataValue('id'),
                         awayId: awayTeam.getDataValue('id'),
                         round: fixture['Round Number'],
                         date: date,
-                        actualResult: fixture['Result']
+                        actualScore: fixture['Result'],
+                        actualResult: result
                     });
 
                     console.log(`${fixture['Home Team']} vs ${fixture['Away Team']} fixture has been extracted`);

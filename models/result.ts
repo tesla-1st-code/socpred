@@ -8,11 +8,14 @@ export interface ResultAttribute {
     awayId: number;
     round: number;
     actualScore?: string;
-    predictedScore?: string;
-    actualProbability?: number;
-    predictedProbability?: number;
     actualResult?: string;
-    predictedResult?: string;
+    predScore1?: string;
+    predScore2?: string;
+    predScore3?: string;
+    prob1?: number;
+    prob2?: number;
+    prob3?: number;
+    predResult?: string;
     date: Date;
 }
 
@@ -26,11 +29,14 @@ export let Result = DbContext.define<ResultEntity, ResultAttribute>('result', {
    awayId: { type: BIGINT, allowNull: false, field: 'away_id' },
    round: { type: INTEGER, allowNull: false},
    actualScore: { type: STRING, allowNull: true, field: 'actual_score'},
-   predictedScore: { type: STRING, allowNull: true, field: 'predicted_score'},
-   actualProbability: { type: DECIMAL, allowNull: true, field: 'actual_probability'},
-   predictedProbability: { type: DECIMAL, allowNull: true, field: 'predicted_probability'},
    actualResult: { type: STRING, allowNull: true, field: 'actual_result'},
-   predictedResult: { type: STRING, allowNull: true, field: 'predicted_result'},
+   predScore1: { type: STRING, allowNull: true, field: 'pred_score_1'},
+   predScore2: { type: STRING, allowNull: true, field: 'pred_score_2'},
+   predScore3: { type: STRING, allowNull: true, field: 'pred_score_3'},
+   prob1: { type: DECIMAL, allowNull: true, field: 'prob_1'},
+   prob2: { type: DECIMAL, allowNull: true, field: 'prob_2'},
+   prob3: { type: DECIMAL, allowNull: true, field: 'prob_3'},
+   predResult: { type: STRING, allowNull: true, field: 'pred_result'},
    date: { type: DATEONLY, allowNull: true }
 }, { timestamps: false, tableName: 'results', freezeTableName: true });
 
