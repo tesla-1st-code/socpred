@@ -28,7 +28,6 @@ export class PredictionComponent implements OnInit {
            this.selectedLeague = this.leagues[0];
 
         this.results = await this.dataService.getAll({leagueId: this.selectedLeague.id, round: this.selectedRound}, 'result', 'getAll').toPromise();
-        console.log(this.results);
     }
 
     async fetchLeagues() {

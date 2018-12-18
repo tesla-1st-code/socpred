@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { ProgressHttpModule } from 'angular-progress-http';
 import { ChartModule, HIGHCHARTS_MODULES } from 'angular-highcharts';
-import { LocationStrategy, HashLocationStrategy } from '../../node_modules/@angular/common';
+import { LocationStrategy, HashLocationStrategy, PathLocationStrategy } from '../../node_modules/@angular/common';
 import { SharedService } from './shared.service';
 import { DataService } from './data.service';
 
@@ -33,7 +33,7 @@ import { HomeComponent } from './home/home.component';
     ProgressHttpModule,
     ChartModule
   ],
-  providers: [{provide: HIGHCHARTS_MODULES, useFactory: () => []}, SharedService, DataService],
+  providers: [{provide: HIGHCHARTS_MODULES, useFactory: () => []}, SharedService, DataService, {provide: LocationStrategy, useClass: PathLocationStrategy}],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
