@@ -33,7 +33,7 @@ import { HomeComponent } from './home/home.component';
     ProgressHttpModule,
     ChartModule
   ],
-  providers: [{provide: HIGHCHARTS_MODULES, useFactory: () => []}, SharedService, DataService, {provide: LocationStrategy, useClass: HashLocationStrategy}],
+  providers: [{provide: HIGHCHARTS_MODULES, useFactory: () => []}, SharedService, DataService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
