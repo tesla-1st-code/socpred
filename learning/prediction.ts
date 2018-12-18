@@ -98,4 +98,4 @@ export class Prediction {
     }
 }
 
-new Prediction().run(17, 2);
+new Prediction().run(18, 2);

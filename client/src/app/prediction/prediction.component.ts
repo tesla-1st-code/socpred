@@ -16,7 +16,7 @@ export class PredictionComponent implements OnInit {
     constructor(private dataService: DataService) { }
 
     ngOnInit() {
-        this.selectedRound = 16;
+        this.selectedRound = 17;
         this.fetch();
     }
 
