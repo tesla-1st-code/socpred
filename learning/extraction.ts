@@ -4,6 +4,7 @@ import { League } from "../models/league";
 import { Team } from "../models/team";
 import { Feature } from "../models/feature";
 import { DataHelper } from "../helpers/data";
+import { Result } from "../models/result";
 
 const seasons = ['1819'];
 
@@ -13,7 +14,8 @@ export class Extraction {
     async run() {
         await this.extractLeagues();
         await this.extractTeams();
-        await this.extractFeatures();   
+        await this.extractFeatures();
+        await this.extractSchedules();
     }
 
     private async extractLeagues() {
@@ -65,16 +67,24 @@ export class Extraction {
                 let agr = mean(awayGames.map(e => parseInt(e['FTAG'])))/meanAwayGoal;
                 let acr = mean(awayGames.map(e => parseInt(e['FTHG'])))/meanHomeGoal;
                 
-                if (isNaN(hgr) || isNaN(hcr) || isNaN(agr) || isNaN(acr)) {
-                    console.log();
+                let existingFeature = await Feature.findOne({where: { teamId: team.id}});
+
+                if (!existingFeature) {
+                    await Feature.create({
+                        teamId: team.id,
+                        hgr: hgr,
+                        hcr: hcr,
+                        agr: agr,
+                        acr: acr
+                    });
                 }
-                await Feature.create({
-                    teamId: team.id,
-                    hgr: hgr,
-                    hcr: hcr,
-                    agr: agr,
-                    acr: acr
-                });
+                else {
+                    await Feature.update({
+                        hgr: hgr,
+                        hcr: hcr,
+                        agr: agr,
+                        acr: acr }, {where: { teamId: team.id }});
+                }
     
                 console.log(`Team ${team.name} feature has been extracted`);
             }      
@@ -82,7 +92,44 @@ export class Extraction {
     }
 
     private async extractSchedules() {
-        
+        let leagues = await League.findAll();
+
+        for (let i=0; i<leagues.length; i++) {
+            let league = leagues[i].toJSON();
+            let fixtures = DataHelper.getFixtures(league.prefix).filter(e => e['Round Number'] >= 16);
+            
+            fixtures = fixtures.sort((a, b) => {
+                return a['Round Number'] - b['Round Number']
+            });
+
+            for (let j=0; j<fixtures.length; j++) {
+                let fixture = fixtures[j];
+                let homeTeam = await Team.findOne({where: {name: fixture['Home Team']}});
+                let awayTeam = await Team.findOne({where: {name: fixture['Away Team']}});
+                let segmentedDates = fixture["Date"].split('/');
+                let day = parseInt(segmentedDates[0]) > 10 ? segmentedDates[0] : ("0" + segmentedDates[0]);
+                let month = parseInt(segmentedDates[1]) > 10 ? segmentedDates[1] : ("0" + segmentedDates[1]);
+                let year = segmentedDates[2].split(' ')[0];
+                let date = new Date(year+'/'+month+'/'+day);
+                
+                let existingFixture = await Result.findOne({ where: { round: fixture['Round Number'], 
+                    homeId: homeTeam.getDataValue('id'), 
+                    awayId: awayTeam.getDataValue('id')}
+                });
+
+                if (!existingFixture) {
+                    await Result.create({
+                        homeId: homeTeam.getDataValue('id'),
+                        awayId: awayTeam.getDataValue('id'),
+                        round: fixture['Round Number'],
+                        date: date,
+                        actualResult: fixture['Result']
+                    });
+
+                    console.log(`${fixture['Home Team']} vs ${fixture['Away Team']} fixture has been extracted`);
+                }
+            }
+        }
     }
 }
 

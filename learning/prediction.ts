@@ -4,15 +4,48 @@ import { League } from "../models/league";
 import { mean } from 'lodash';
 import { StatisticHelper } from "../helpers/statistic";
 import { DataHelper } from "../helpers/data";
+import { Result } from "../models/result";
 
 export class Prediction {
     constructor() {}
 
-    async predict() {
-        
+    async run(round: number) {
+        let fixtures = await Result.findAll({
+            where: { round: round },
+            include: [{model: Team, as: 'home', include: [{model: League, as: 'league'}]}]
+        });
+
+        for (let i=0; i<fixtures.length; i++) {
+            let fixture = fixtures[i].toJSON();
+            let league = fixture['home']['league'];
+            let prediction = await this.getPrediction(fixture.homeId, fixture.awayId, league['prefix']);
+
+            let scoreRanges = [0, 1, 2, 3, 4, 5, 6];
+            let max = Number.MIN_VALUE;
+            let predictedScore = '';
+
+            for (let j=0; j<scoreRanges.length; j++) {
+                for (let k=0; k<scoreRanges.length; k++) {
+                   let homeR = prediction.hs[j].probability;
+                   let awayR = prediction.as[k].probability;
+
+                   if ((homeR * awayR) > max) {
+                       max = homeR * awayR;
+                       predictedScore = j.toString() + '-' + k.toString();
+                   }
+                }
+            }
+
+            await Result.update({
+                actualProbability: max,
+                actualResult: predictedScore,
+                
+            })
+            console.log(prediction);
+        }
     }
 
-    private async run(homeId: number, awayId: number, prefix: string) {
+    private async getPrediction(homeId: number, awayId: number, prefix: string) {
         let homeFeature = await Feature.findOne({ where:{ teamId: homeId}});
         let awayFeature = await Feature.findOne({ where:{ teamId:awayId}});
         let data = DataHelper.getSeasonData(prefix);
@@ -60,3 +93,5 @@ export class Prediction {
         return {hs: homeScores, as: awayScores, wld: {home: homeWins, away: awayWins, draw: draw}};
     }
 }
+
+new Prediction().run(16);

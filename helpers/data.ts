@@ -13,4 +13,8 @@ export class DataHelper {
 
         return data;
     }
+
+    static getFixtures(prefix) {
+        return JSON.parse(readFileSync('../data/' + prefix + '-fixtures.json').toString());
+    }
 }
