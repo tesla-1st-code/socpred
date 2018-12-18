@@ -6,7 +6,7 @@ import { ResultComponent } from './result/result.component';
 import { CalculationComponent } from './calculation/calculation.component';
 
 const routes: Routes = [ 
-  { path: '', redirectTo: 'home', pathMatch: 'full' },
+  { path: '**', redirectTo: '', pathMatch: 'full' },
   { path: 'home', component: HomeComponent },
   { path: 'prediction', component: PredictionComponent },
   { path: 'result', component: ResultComponent },
