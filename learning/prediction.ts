@@ -34,9 +34,12 @@ export class Prediction {
 
             let sorted = orderBy(scores, 'prob', ['desc']);
             let top3Result = sorted.slice(0, 3);
+            let hw = prediction.wld.home > prediction.wld.away && prediction.wld.home > prediction.wld.draw;
+            let aw = prediction.wld.away > prediction.wld.home && prediction.wld.away > prediction.wld.draw;
+            let drw = prediction.wld.draw > prediction.wld.home && prediction.wld.draw > prediction.wld.away;
 
             await Result.update({
-                predResult: prediction.wld.home > prediction.wld.away ? 'H' : prediction.wld.home < prediction.wld.away ? 'A' : 'D',
+                predResult: hw ? 'H' : aw ? 'A' : 'D',
                 predScore1: top3Result[0]['score'],
                 predScore2: top3Result[1]['score'],
                 predScore3: top3Result[2]['score'],
@@ -72,8 +75,7 @@ export class Prediction {
 
         let homeWins = 0;
         let awayWins = 0;
-        let draw = 0;
-
+    
         for (let i=0; i<scoreRanges.length; i++) {
             for (let j=0; j<scoreRanges.length; j++) {
                 console.log(`${i}-${j} = ${Math.round((homeScores[i].probability * awayScores[j].probability)*100)}%`);
@@ -85,17 +87,13 @@ export class Prediction {
                 else if (i < j) {
                     awayWins += (homeScores[i].probability * awayScores[j].probability)*100;
                 }
-
-                else {
-                    draw += (homeScores[i].probability * awayScores[j].probability)*100;
-                }
             }
         }
 
-        console.log(`Home = ${Math.round(homeWins)}%, Away =  ${Math.round(awayWins)}%, Draw =  ${Math.round(draw)}%`);
+        console.log(`Home = ${Math.round(homeWins)}%, Away =  ${Math.round(awayWins)}%, Draw =  ${Math.round(100 - (homeWins + awayWins))}%`);
 
-        return {hs: homeScores, as: awayScores, wld: {home: homeWins, away: awayWins, draw: draw}};
+        return {hs: homeScores, as: awayScores, wld: {home: homeWins, away: awayWins, draw: 100 - (homeWins + awayWins)}};
     }
 }
 
-new Prediction().run(18, 2);
+new Prediction().run(17, 3);
