@@ -43,7 +43,7 @@ export class Extraction {
         }
     }
 
-    private async extractFeatures() {
+    async extractFeatures() {
         let leagues = await League.findAll();
 
         for (let i=0; i<leagues.length; i++) {
@@ -146,4 +146,4 @@ export class Extraction {
     }
 }
 
-new Extraction().run();
+new Extraction().extractFeatures();
