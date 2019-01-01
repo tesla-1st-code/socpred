@@ -96,4 +96,4 @@ export class Prediction {
     }
 }
 
-new Prediction().run(18, 3);
+new Prediction().run(20, 1);
